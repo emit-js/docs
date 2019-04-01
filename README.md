@@ -1,6 +1,6 @@
 # @dot-event/docs
 
-dot-event automatic documentation
+[dot-event](https://github.com/dot-event/dot-event#readme) automatic documentation
 
 ![docs](docs.gif)
 
