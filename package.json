@@ -1,6 +1,6 @@
 {
   "name": "@emit-js/docs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "dist/docs.js",
   "description": "emit automatic documentation",
   "keywords": [
