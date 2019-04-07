@@ -1,27 +1,27 @@
-# @dot-event/docs
+# @emit-js/docs
 
-[dot-event](https://github.com/dot-event/dot-event#readme) automatic documentation
+[emit](https://github.com/emit-js/emit#readme) documentation generator
 
 ![docs](docs.gif)
 
 ## Install
 
 ```bash
-npm install @dot-event/docs @dot-event/args @dot-event/glob @dot-event/log
+npm install @emit-js/docs @emit-js/args @emit-js/glob @emit-js/log
 ```
 
 ## Setup
 
 ```js
-var dot = require("dot-event")()
-require("@dot-event/args")(dot)
-require("@dot-event/glob")(dot)
-require("@dot-event/log")(dot)
-require("@dot-event/docs")(dot)
+var emit = require("@emit-js/emit")()
+require("@emit-js/args")(emit)
+require("@emit-js/glob")(emit)
+require("@emit-js/log")(emit)
+require("@emit-js/docs")(emit)
 ```
 
 ## Usage
 
 ```js
-await dot.docs({ path: process.cwd() })
+await emit.docs({ path: process.cwd() })
 ```

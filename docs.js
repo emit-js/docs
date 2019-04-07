@@ -1,36 +1,37 @@
 import { pathExists, readJson } from "fs-extra"
 import { basename, join, resolve } from "path"
 
-module.exports = function(dot) {
-  if (dot.docs) {
+module.exports = function(emit) {
+  if (emit.docs) {
     return
   }
 
-  dot.state.docs = {
+  emit.state.docs = {
     args: {},
     dependencies: {},
     returns: {},
   }
 
-  dot.any("args", args)
-  dot.any("dependencies", dependencies)
-  dot.any("returns", returns)
+  emit.any("args", args)
+  emit.any("dependencies", dependencies)
+  emit.any("returns", returns)
 
-  dot("args", "docs", {
+  emit("args", "docs", {
     path: {
       alias: ["_", "p"],
       default: process.cwd(),
     },
   })
 
-  dot("dependencies", "docs", {
-    arg: ["@dot-event/args", "@dot-event/glob"],
-  })
+  emit("dependencies", "docs", [
+    "@emit-js/args",
+    "@emit-js/glob",
+  ])
 
-  dot.any("docs", docs)
+  emit.any("docs", docs)
 }
 
-async function docs(prop, arg, dot) {
+async function docs(arg, prop, emit) {
   let { path } = arg
 
   path = resolve(Array.isArray(path) ? path[0] : path)
@@ -45,40 +46,53 @@ async function docs(prop, arg, dot) {
     return
   }
 
-  const pkgPath = (await readJson(pkgJsonPath)).main
-
-  require(join(path, pkgPath))(dot)
-
-  const paths = await dot.glob(prop, {
+  const paths = await emit.glob(prop, {
     absolute: true,
     pattern: join(path, "docs/*.md"),
   })
 
+  if (!paths.length) {
+    return
+  }
+
+  const pkgPath = (await readJson(pkgJsonPath)).main
+  require(join(path, pkgPath))(emit)
+
   for (const doc of paths) {
     const event = basename(doc, ".md")
-    const args = dot.state.docs.args[event]
-    const dependencies = dot.state.docs.dependencies[event]
-    const returns = dot.state.docs.returns[event]
+    const args = emit.state.docs.args[event]
+    const dependencies = emit.state.docs.dependencies[event]
+    const returns = emit.state.docs.returns[event]
 
-    dot("log", "info", event, "dependencies", {
-      arg: dependencies,
-    })
-    dot("log", "info", event, "args", args)
-    dot("log", "info", event, "returns", returns)
+    var output = `### ${event}\n\n`
+
+    emit("log", event, "dependencies", dependencies)
+
+    output += "#### Dependencies\n\n"
+    output += dependencies
+      .sort()
+      .map(d => "`" + d + "`")
+      .join(", ")
+
+    emit("log", event, "args", args)
+    emit("log", event, "returns", returns)
+
+    // eslint-disable-next-line no-console
+    console.log(output)
   }
 }
 
-function args(prop, arg, dot) {
-  const state = dot.state.docs.args
+function args(arg, prop, emit) {
+  const state = emit.state.docs.args
   state[prop[0]] = arg
 }
 
-function dependencies(prop, arg, dot) {
-  const state = dot.state.docs.dependencies
+function dependencies(arg, prop, emit) {
+  const state = emit.state.docs.dependencies
   state[prop[0]] = arg
 }
 
-function returns(prop, arg, dot) {
-  const state = dot.state.docs.returns
+function returns(arg, prop, emit) {
+  const state = emit.state.docs.returns
   state[prop[0]] = arg
 }
